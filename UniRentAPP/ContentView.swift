@@ -8,17 +8,148 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedIndex: Int = 0
+    private let categories = ["All", "Apartment", "House", "Studio", "Private Room", "Shared Room"]
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            Color("Bg")
+                .edgesIgnoringSafeArea(.all)
+            VStack (alignment: .leading){
+                AppBarView()
+                
+                TagLineView()
+                    .padding()
+                
+                SearchAndScanView()
+                
+                ScrollView (.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(0 ..< categories.count) { i in
+                            CategoryView(isActive: i == selectedIndex, text: categories[i])
+                                .onTapGesture {
+                                    selectedIndex = i
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                
+                Text("Popular")
+                    .font(.custom("PlayfairDisplay-Bold", size: 24))
+                
+                ScrollView (.horizontal, showsIndicators: false) {
+                    HStack{
+                    ForEach(0 ..< 4) { index in
+                        PropertyCardView(image: Image("apt\(index + 1)"))
+                        }
+                        .padding(.trailing)
+                    }
+                    .padding(.leading)
+                }
+            }
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+}
+
+struct AppBarView: View {
+    var body: some View {
+        HStack{
+            Button(action: {}) {
+                Image("menu")
+                    .padding()
+                    .background(Color(.white))
+                    .cornerRadius(10.0)
+            }
+            
+            Spacer()
+            
+            Image("Profile")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 50, height: 50)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                .shadow(radius: 5)
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct TagLineView: View {
+    var body: some View {
+        Text("Find The \nBest")
+            .font(.custom("PlayfairDisplay-Regular", size: 28))
+            .foregroundColor(Color("Primary"))
+        + Text("Housing!")
+            .font(.custom("PlayfairDisplay-Bold", size: 28))
+            .foregroundColor(Color("Primary"))
+    }
+}
+
+struct SearchAndScanView: View {
+    @State private var search: String = ""
+    var body: some View {
+        HStack {
+            HStack {
+                Image("Search")
+                    .padding(.trailing, 8)
+                TextField("Search Apartments", text: $search)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(10.0)
+            .padding(.horizontal)
+        }
+    }
+}
+
+struct CategoryView: View {
+    let isActive: Bool
+    let text: String
+    var body: some View {
+        VStack{
+            Text(text)
+                .font(.system(size: 18))
+                .fontWeight(.medium)
+                .foregroundColor(isActive ? Color("Primary"): Color.black.opacity(0.5))
+            
+            if (isActive) {
+                Color("Primary")
+                    .frame(width: 15, height: 2)
+                    .clipShape(Capsule())
+            }
+        }
+        .padding(.trailing)
+    }
+}
+
+struct PropertyCardView: View {
+    let image: Image
+    var body: some View {
+        VStack {
+            image
+                .resizable()
+                .frame(width: 210, height: 200)
+                .cornerRadius(20.0)
+            Text("Private Room Downtown")
+                .font(.title3)
+                .fontWeight(.bold)
+            
+            HStack {
+                Text("1 Bed")
+                
+                Spacer()
+                
+                Text("$900")
+            }
+        }
+        .frame(width: 210)
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20.0)
+    }
 }
