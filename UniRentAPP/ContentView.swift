@@ -11,43 +11,10 @@ struct ContentView: View {
     @State private var selectedIndex: Int = 0
     private let categories = ["All", "Apartment", "House", "Studio", "Private Room", "Shared Room"]
     var body: some View {
-        ZStack {
-            Color("Bg")
-                .edgesIgnoringSafeArea(.all)
-            VStack (alignment: .leading){
-                AppBarView()
-                
-                TagLineView()
-                    .padding()
-                
-                SearchAndScanView()
-                
-                ScrollView (.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(0 ..< categories.count) { i in
-                            CategoryView(isActive: i == selectedIndex, text: categories[i])
-                                .onTapGesture {
-                                    selectedIndex = i
-                            }
-                        }
-                    }
-                    .padding()
-                }
-                
-                Text("Popular")
-                    .font(.custom("PlayfairDisplay-Bold", size: 24))
-                
-                ScrollView (.horizontal, showsIndicators: false) {
-                    HStack{
-                    ForEach(0 ..< 4) { index in
-                        PropertyCardView(image: Image("apt\(index + 1)"))
-                        }
-                        .padding(.trailing)
-                    }
-                    .padding(.leading)
-                }
-            }
+        VStack {
+            HomeScreen()
         }
+        
     }
 }
 
@@ -129,11 +96,12 @@ struct CategoryView: View {
 
 struct PropertyCardView: View {
     let image: Image
+    let size: CGFloat
     var body: some View {
         VStack {
             image
                 .resizable()
-                .frame(width: 210, height: 200)
+                .frame(width: size, height: 200 * (size/210))
                 .cornerRadius(20.0)
             Text("Private Room Downtown")
                 .font(.title3)
@@ -147,9 +115,101 @@ struct PropertyCardView: View {
                 Text("$900")
             }
         }
-        .frame(width: 210)
+        .frame(width: size)
         .padding()
         .background(Color.white)
         .cornerRadius(20.0)
+    }
+}
+
+struct BottomNavBarItem<Content: View>: View {
+    let content: Content
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action, label: {
+            content
+                .frame(maxWidth: .infinity)
+        })
+    }
+}
+
+struct HomeScreen: View {
+    var body: some View {
+        ZStack {
+            Color("Bg")
+                .edgesIgnoringSafeArea(.all)
+            ScrollView {
+                VStack (alignment: .leading){
+                    AppBarView()
+                    
+                    TagLineView()
+                        .padding()
+                    
+                    SearchAndScanView()
+                    
+                    ScrollView (.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(0 ..< categories.count) { i in
+                                CategoryView(isActive: i == selectedIndex, text: categories[i])
+                                    .onTapGesture {
+                                        selectedIndex = i
+                                    }
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    Text("Popular")
+                        .font(.custom("PlayfairDisplay-Bold", size: 24))
+                        .padding(.horizontal)
+                    
+                    ScrollView (.horizontal, showsIndicators: false) {
+                        HStack{
+                            ForEach(0 ..< 4) { index in
+                                PropertyCardView(image: Image("apt\(index + 1)"), size: 210)
+                            }
+                            .padding(.trailing)
+                        }
+                        .padding(.leading)
+                    }
+                    
+                    Text("For you")
+                        .font(.custom("PlayfairDisplay-Bold", size: 24))
+                        .padding(.horizontal)
+                        .padding(.top)
+                    
+                    ScrollView (.horizontal, showsIndicators: false) {
+                        HStack{
+                            ForEach(0 ..< 4) { index in
+                                PropertyCardView(image: Image("apt\(index + 1)"), size: 180)
+                            }
+                            .padding(.trailing)
+                        }
+                        .padding(.leading)
+                    }
+                }
+            }
+            
+            //             custom bottom nav bar
+            
+            HStack {
+                BottomNavBarItem(content: Image("Home")) {}
+                BottomNavBarItem(
+                    content: Image(systemName: "heart")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(.black)
+                ) {}
+                BottomNavBarItem(content: Image("User")) {}
+            }
+            .padding()
+            .background(Color.white)
+            .clipShape(Capsule())
+            .padding(.horizontal)
+            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 2, y: 6)
+            .frame(maxHeight: .infinity, alignment: .bottom)
+        }
     }
 }
